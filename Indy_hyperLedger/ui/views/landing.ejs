@@ -58,8 +58,8 @@
   <div style="overflow:auto">
     <div class="menu">
       <img width="96" height="96" src="<%=srcId%>">
-      <a href="exporttopdf-<%=credential.referent%>.html">Export to PDF</a>
-      <a href="qrcode-<%=credential.referent%>.html">Generate QR Code</a>
+      <a href="#exporttopdf" onClick="exportHtml('exporttopdf-<%=credential.referent%>')">Export to PDF</a>
+      <a href="#qrcode"onClick="exportHtml('qrcode-<%=credential.referent%>')">Generate QR Code</a>
     </div>
 
     <div class="main">
@@ -84,3 +84,39 @@
   </body>
   </html>	
 </div>
+<script type="text/javascript">
+	function exportHtml(id) {
+		// var randing_element = document.getElementById("randing-" + id);
+		// if (randing_element !== undefined && randing_element != null) {
+		// 	randing_element.style['display']='block';
+		// 		var html = randing_element.innerHTML;
+		// 		const htmlBlob = new Blob([html], { type: "text/html" });
+		// 		const blobUrl = URL.createObjectURL(htmlBlob);
+		// 		const anchorElement = document.createElement("a");
+		// 		anchorElement.href = blobUrl;
+		// 		anchorElement.download = "randing.html";
+		// 		anchorElement.click();
+		// }
+		var pdf_element = document.getElementById(id);
+		if (pdf_element !== undefined && pdf_element != null) {
+      pdf_element.style['display']='block';
+				// var html = pdf_element.innerHTML;
+				// const htmlBlob = new Blob([html], { type: "text/html" });
+				// const blobUrl = URL.createObjectURL(htmlBlob);
+				// const anchorElement = document.createElement("a");
+				// anchorElement.href = blobUrl;
+				// anchorElement.download = "exporttopdf.html";
+				// anchorElement.click();
+		}
+		// var qrcode_element = document.getElementById("qrcode-" + id);
+		// if (qrcode_element !== undefined && qrcode_element != null) {
+		// 		var html = qrcode_element.innerHTML;
+		// 		const htmlBlob = new Blob([html], { type: "text/html" });
+		// 		const blobUrl = URL.createObjectURL(htmlBlob);
+		// 		const anchorElement = document.createElement("a");
+		// 		anchorElement.href = blobUrl;
+		// 		anchorElement.download = "qrcode.html";
+		// 		anchorElement.click();
+		// }
+	}
+</script>
