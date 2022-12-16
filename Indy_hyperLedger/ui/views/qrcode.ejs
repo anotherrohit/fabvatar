@@ -1,31 +1,34 @@
 <%for(let credential of credentials) {%>
   <div id="qrcode-<%=credential.referent%>" style="display: none;" class="hidden-page">
-    <!DOCTYPE html>
-    <html>
-      
-    <head>
-      <!-- Include Bootstrap for styling -->
-      <link rel="stylesheet" href=
-    "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" />
-      
-      <style>
-        .qr-code {
-          max-width: 200px;
-          margin: 10px;
+    <style>
+      .qr-code-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+
+        @media screen and (max-width: 50em) {
+          width: 100%;
+          margin: 8rem 0;
         }
-      </style>
-      
-      <title>QR Code Generator</title>
-    </head>
-      
-    <body>
+      }
+
+      .qr-code {
+        display: flex;
+        border-radius: 1rem;
+        width: fit-content;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 2rem;
+      }
+
+
+    </style>
+    
       <div class="container-fluid">
-        <div class="text-center">
-      
-          <!-- Get a Placeholder image initially,
-          this will change according to the
-          data entered later -->
-          <img src="https://chart.googleapis.com/chart?cht=qr&chl=Hello+World&chs=160x160&chld=L|0" class="qr-code img-thumbnail img-responsive" />
+
+        <div class="qr-code-container">
+          <div class="qr-code" style></div>
         </div>
       
         <div class="form-horizontal">
@@ -40,7 +43,7 @@
                   required data -->
               <input type="text" size="60" 
                 maxlength="60" class="form-control"
-                id="content" placeholder="Enter content" />
+                id="input_text" placeholder="Enter content" />
             </div>
           </div>
           <div class="form-group">
@@ -49,57 +52,74 @@
               <!-- Button to generate QR Code for
               the entered data -->
               <button type="button" class=
-                "btn btn-default" id="generate">
+                "btn btn-default button w3-btn w3-white w3-border" id="generate">
                 Generate
               </button>
             </div>
           </div>
         </div>
       </div>
-      <script src=
-        "https://code.jquery.com/jquery-3.5.1.js">
-      </script>
+      <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
       
       <script>
-        // Function to HTML encode the text
-        // This creates a new hidden element,
-        // inserts the given text into it 
-        // and outputs it out as HTML
-        function htmlEncode(value) {
-          return $('<div/>').text(value)
-            .html();
-        }
-        $(document).ready(function(){
-          var finalURL = 'https://chart.googleapis.com/chart?cht=qr&chl=' + htmlEncode(window.location.href) + '&chs=160x160&chld=L|0';
+        let btn = document.querySelector(".button");
+        let qr_code_element = document.querySelector(".qr-code");
 
-          // http://localhost:8080/#qrcode-reference-1
-          console.log(finalURL)
-          $('.qr-code').attr('src', finalURL);
+        btn.addEventListener("click", () => {
+          let user_input = document.querySelector("#input_text");
+          if (user_input.value != "") {
+            if (qr_code_element.childElementCount == 0) {
+              generate(user_input);
+            } else {
+              qr_code_element.innerHTML = "";
+              generate(user_input);
+            }
+          } else {
+            console.log("not valid input");
+            qr_code_element.style = "display: none";
+          }
+        });
 
-        })
-      
-        $(function () {
-      
-          // Specify an onclick function
-          // for the generate button
-          $('#generate').click(function () {
-      
-            // Generate the link that would be
-            // used to generate the QR Code
-            // with the given data 
-            let finalURL =
-    'https://chart.googleapis.com/chart?cht=qr&chl=' +
-              htmlEncode($('#content').val()) +
-              '&chs=160x160&chld=L|0'
-      
-            // Replace the src of the image with
-            // the QR code image
-            $('.qr-code').attr('src', finalURL);
+        function generate(user_input) {
+          qr_code_element.style = "";
+
+          var qrcode = new QRCode(qr_code_element, {
+            text: `${user_input.value}`,
+            width: 180, //128
+            height: 180,
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
           });
+
+          let download = document.createElement("button");
+          qr_code_element.appendChild(download);
+
+          let download_link = document.createElement("a");
+          download_link.setAttribute("download", "qr_code.png");
+          download_link.innerHTML = `Download`;
+
+          download.appendChild(download_link);
+
+          let qr_code_img = document.querySelector(".qr-code img");
+          let qr_code_canvas = document.querySelector("canvas");
+
+          if (qr_code_img.getAttribute("src") == null) {
+            setTimeout(() => {
+              download_link.setAttribute("href", `${qr_code_canvas.toDataURL()}`);
+            }, 300);
+          } else {
+            setTimeout(() => {
+              download_link.setAttribute("href", `${qr_code_img.getAttribute("src")}`);
+            }, 300);
+          }
+        }
+        let current_url = window.location.href;
+        generate({
+          value: current_url.replace("#qrcode", "#landing")
         });
       </script>
-    </body>
-      
-    </html>
   </div>
 <%}%>

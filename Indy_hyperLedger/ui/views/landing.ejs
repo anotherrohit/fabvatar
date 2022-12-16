@@ -35,6 +35,30 @@
       margin-top: 7px;
       text-align: center;
     }
+    .qr-code-container {
+      margin-top: 2rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+  
+      @media screen and (max-width: 50em) {
+        width: 100%;
+        margin: 8rem 0;
+      }
+    }
+    .qr-code-container button {
+      width: 100%;
+    }
+  
+    .qr-code {
+      display: flex;
+      border-radius: 1rem;
+      width: fit-content;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 2rem;
+    }
   
     @media only screen and (max-width: 620px) {
       /* For mobile phones: */
@@ -47,39 +71,7 @@
     
     <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
   
-    <script>
-      // Function to HTML encode the text
-      // This creates a new hidden element,
-      // inserts the given text into it 
-      // and outputs it out as HTML
-      function htmlEncode(value) {
-        return $('<div/>').text(value)
-          .html();
-      }
-    
-      $(function () {
-    
-        // Specify an onclick function
-        // for the generate button
-        $('#generate').click(function () {
-    
-          // Generate the link that would be
-          // used to generate the QR Code
-          // with the given data 
-          let finalURL =
-  'https://chart.googleapis.com/chart?cht=qr&chl=' +
-            htmlEncode($('#content').val()) +
-            '&chs=160x160&chld=L|0'
-    
-          // Replace the src of the image with
-          // the QR code image
-          $('.qr-code').attr('src', finalURL);
-        });
-      });
-    </script>
-  
     <div style="background-color:hwb(99 84% 8%);padding:15px;text-align:center;">
-        <!-- <img width="96" height="96" src="C:/Users/rnayak/Downloads/favtar/favtar/images/logo.jpeg"> -->
         <svg class="w3-bar-item" width="96" height="96" data-jdenticon-value="<%=credential.cred_def_id%>"></svg>
         <h1>Customer Service: <%=credential.attrs['tax_id']%></h1>
     </div>
@@ -88,11 +80,11 @@
       <div class="menu">
         <img width="96" height="96" src="<%=srcId%>">
         <a href="#exporttopdf-<%=credential.referent%>" onclick="exportHtml('exporttopdf-<%=credential.referent%>')">Export to PDF</a>
-        <a href="#qrcode-<%=credential.referent%>" onclick="exportHtml('qrcode-<%=credential.referent%>')">Generate QR Code</a>
+        <!-- <a href="#qrcode-<%=credential.referent%>" onclick="exportHtml('qrcode-<%=credential.referent%>')">Generate QR Code</a> -->
+        <a onclick="generateQRCode('qrcode-<%=credential.referent%>')" style="cursor: pointer;">Generate QR Code</a>
       </div>
   
       <div class="main">
-        <!-- <img width="32" height="32" src="C:/Users/rnayak/Downloads/favtar/favtar/images/logo.jpeg"> -->
         <svg class="w3-bar-item" width="32" height="32" data-jdenticon-value="<%=credential.cred_def_id%>"></svg>
         <h5> <%=credential.attrs['name']%></h5>
   
@@ -110,5 +102,49 @@
       </div>
     </div>
     <div style="background-color:#e5e5e5;text-align:center;padding:10px;margin-top:7px;">© copyright Fabvatar</div>
+    <div class="qr-code-container">
+      <div id='qrcode-<%=credential.referent%>' style></div>
+    </div>
+  
+    <script>
+      
+      function generateQRCode (id) {
+        let qr_code_element = document.querySelector("#"+id);
+        if (qr_code_element.getElementsByTagName('img')[0] != null) return;
+        qr_code_element.style = "";
+  
+        var qrcode = new QRCode(qr_code_element, {
+          text: window.location.href,
+          width: 180, //128
+          height: 180,
+          colorDark: "#000000",
+          colorLight: "#ffffff",
+          correctLevel: QRCode.CorrectLevel.H
+        });
+  
+        let download = document.createElement("button");
+        qr_code_element.appendChild(download);
+  
+        let download_link = document.createElement("a");
+        download_link.setAttribute("download", "qr_code.png");
+        download_link.innerHTML = `Download`;
+  
+        download.appendChild(download_link);
+  
+        let qr_code_img = document.querySelector(".qr-code img");
+        let qr_code_canvas = document.querySelector("canvas");
+  
+        if (qr_code_img.getAttribute("src") == null) {
+          setTimeout(() => {
+            download_link.setAttribute("href", `${qr_code_canvas.toDataURL()}`);
+          }, 300);
+        } else {
+          setTimeout(() => {
+            download_link.setAttribute("href", `${qr_code_img.getAttribute("src")}`);
+          }, 300);
+        }
+      }
+  
+    </script>
   </div>
   <%}%>
