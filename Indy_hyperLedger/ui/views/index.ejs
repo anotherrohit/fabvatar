@@ -187,7 +187,6 @@
                 if (hash.includes('#credentials')) {
                     showTab('credentials');
                 }
-                console.log(window.location)
             }
 
             function showTab(id) {
@@ -216,9 +215,14 @@
                     found = true;
                 }
             }
-            if(!found) {
+            if(!found && !hashlink.includes("landing") && !hashlink.includes("exporttopdf")) {
                 window.location.href = window.location.href + "#credentials";
                 showTab('relationships');
+            }
+
+            if (hashlink.includes("landing") || hashlink.includes("exporttopdf")) {
+                var id = hashlink.substring(0, hashlink.length);
+                exportHtml(id)
             }
 
             function request(url, method, message) {
@@ -242,7 +246,10 @@
                     tabs[i].style.display = "none";
                 }
                 console.log('showing div: ', id);
-                $(".hidden-page").hide();
+                var hash = window.location.hash;
+                if (!hash.includes("#landing") && !hash.includes("#exporttopdf") && !hash.includes("#qrcode")) {
+                    $(".hidden-page").hide();
+                }
                 document.getElementById(id).style.display = "block";
             }
 
@@ -272,7 +279,6 @@
                 }
                 if (id.includes("exporttopdf")) {
                     var credential_id = id.substring(12, id.length);
-                    console.log(credential_id)
                     var land_element = document.getElementById("landing-"+credential_id);
                     if (land_element !== undefined && land_element != null) {
                         land_element.style['display']='none';
@@ -283,7 +289,6 @@
                     }	
                 } else if (id.includes("landing")) {
                     var credential_id = id.substring(8, id.length);
-                    console.log(credential_id)
                     var export_element = document.getElementById("exporttopdf-"+credential_id);
                     if (export_element !== undefined && export_element != null) {
                         export_element.style['display']='none';
@@ -294,7 +299,6 @@
                     }	
                 } else if (id.includes("qrcode")) {
                     var credential_id = id.substring(7, id.length);
-                    console.log(credential_id)
                     var export_element = document.getElementById("exporttopdf-"+credential_id);
                     if (export_element !== undefined && export_element != null) {
                         export_element.style['display']='none';
