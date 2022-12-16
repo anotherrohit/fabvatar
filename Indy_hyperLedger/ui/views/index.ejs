@@ -7,6 +7,8 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.min.css">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/webcomponentsjs/1.2.0/webcomponents-lite.js"></script>
         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jdenticon@2.0.0"></script>
+        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+
         <!--<link rel="import" href="bower_components/chat-window/chat-window.html">-->
         <style is="custom-style">
             chat-window {
@@ -35,7 +37,6 @@
             #messages li { padding: 5px 10px; }
             #messages li:nth-child(odd) { background: #eee; }
             #messages { margin-bottom: 40px }
-            .w3-bar { background-color: <%=theme%> !important }
         </style>
     </head>
     <body>
@@ -68,8 +69,7 @@
         <div id="sendCredModel" class="w3-modal">
             <div class="w3-modal-content w3-card-4 w3-animate-top">
                 <header class="w3-container w3-theme-l1">
-        <span onclick="document.getElementById('sendCredModel').style.display='none'"
-              class="w3-button w3-display-topright">×</span>
+                    <span onclick="document.getElementById('sendCredModel').style.display='none'" class="w3-button w3-display-topright">×</span>
                     <h4>Credential Builder</h4>
                 </header>
                 <div class="w3-padding">
@@ -85,8 +85,7 @@
         <div id="newRelationshipModel" class="w3-modal">
             <div class="w3-modal-content w3-card-4 w3-animate-top">
                 <header class="w3-container w3-theme-l1">
-        <span onclick="document.getElementById('newRelationshipModel').style.display='none'"
-              class="w3-button w3-display-topright">×</span>
+                    <span onclick="document.getElementById('newRelationshipModel').style.display='none'" class="w3-button w3-display-topright">×</span>
                     <h4>Create a New Relationship</h4>
                 </header>
                 <div class="w3-padding">
@@ -117,10 +116,7 @@
                             Recipient: <input id="send_message_form_did" class="w3-input" type="text" name="did" value="<%=endpointDid%>">
                         </div>
                         <div class="w3-section">
-                            Message: <textarea id="send_message_form_message" class="w3-input" name="message" rows="6" >{
-    "type":"SOME_TYPE",
-    "message":"test"
-}</textarea>
+                            Message: <textarea id="send_message_form_message" class="w3-input" name="message" rows="6" >{"type":"SOME_TYPE","message":"test"}</textarea>
                         </div>
                         <input class="w3-btn w3-white w3-border" style="display:block;margin:auto;" type="submit" value="Send Message">
                     </form>
@@ -164,35 +160,35 @@
             <a href="#issuing" id="issuing_link" class="w3-left w3-bar-item w3-button w3-padding-16 tab_link" onclick="showTab('issuing')" >Issuing</a>
             <a href="#messages" id="messages_link" class="w3-left w3-bar-item w3-button w3-padding-16 tab_link" onclick="showTab('messages')" >Messages</a>
         </div>
-        <!--<div class="w3-container w3-card" style="position:fixed;bottom:52px;float:right; right:50px;width:300px;z-index:99;background:white;">-->
-            <!--<h5>Chat with Andrew</h5>-->
-            <!--<chat-window-->
-                <!--id="chat"-->
-                <!--author="me"-->
-                <!--single-line>-->
-            <!--</chat-window>-->
-        <!--</div>-->
-        <!--<div class="w3-container w3-card" style="position:fixed;bottom:52px;float:right; right:540px;width:300px;z-index:99;background:white;">-->
-            <!--<h5>Chat with Andrew</h5>-->
-            <!--<chat-window-->
-                    <!--id="chat2"-->
-                    <!--author="me"-->
-                    <!--single-line>-->
-            <!--</chat-window>-->
-        <!--</div>-->
 
         <div class="w3-row-padding w3-center w3-margin-top">
-            <% include credentials.ejs %>
-            <% include proofs.ejs %>
-            <% include issuing.ejs %>
-            <% include relationships.ejs %>
-            <% include messages.ejs %>
-            <% include landing.ejs %>
+            <%- include ('credentials') %>
+            <%- include ('proofs') %>
+            <%- include ('issuing') %>
+            <%- include ('relationships') %>
+            <%- include ('messages') %>
+            <%- include ('landing') %>
+            <%- include ('exporttopdf') %>
+            <%- include ('qrcode') %>
         </div>
+				
         <footer style="position:fixed;bottom:0;background: black;width: 100%;">
             <p style="text-align: center;color: white;">My Endpoint DID: <%=endpointDid%></p>
         </footer>
         <script>
+            window.onhashchange = function() {
+                var hash = window.location.hash;
+                if (!hash.includes("#landing") && !hash.includes("#exporttopdf") && !hash.includes("#qrcode")) {
+                    $(".hidden-page").hide();
+                } else {
+                    var id = hash.substring(1, hash.length);
+                    exportHtml(id)
+                }
+                if (hash.includes('#credentials')) {
+                    showTab('credentials');
+                }
+                console.log(window.location)
+            }
 
             function showTab(id) {
                 let tabs = document.getElementsByClassName("tab");
@@ -200,6 +196,7 @@
                     tabs[i].style.display = "none";
                 }
                 document.getElementById(id).style.display = "block";
+                $(".hidden-page").hide();
 
                 // Bold the selected link, unbold others
                 let tabLinks = document.getElementsByClassName("tab_link");
@@ -245,6 +242,7 @@
                     tabs[i].style.display = "none";
                 }
                 console.log('showing div: ', id);
+                $(".hidden-page").hide();
                 document.getElementById(id).style.display = "block";
             }
 
@@ -264,6 +262,51 @@
                         div.innerHTML = '<i class="fa fa-times" style="color:red;font-size:120px;"></i>'
                         console.log("Validation failed");
                     }
+                }
+            }
+						
+            function exportHtml(id) {
+                let tabs = document.getElementsByClassName("tab");
+                for (let i = 0; i < tabs.length; i++) {
+                        tabs[i].style.display = "none";
+                }
+                if (id.includes("exporttopdf")) {
+                    var credential_id = id.substring(12, id.length);
+                    console.log(credential_id)
+                    var land_element = document.getElementById("landing-"+credential_id);
+                    if (land_element !== undefined && land_element != null) {
+                        land_element.style['display']='none';
+                    }	
+                    var qrcode_element = document.getElementById("qrcode-"+credential_id);
+                    if (qrcode_element !== undefined && qrcode_element != null) {
+                        qrcode_element.style['display']='none';
+                    }	
+                } else if (id.includes("landing")) {
+                    var credential_id = id.substring(8, id.length);
+                    console.log(credential_id)
+                    var export_element = document.getElementById("exporttopdf-"+credential_id);
+                    if (export_element !== undefined && export_element != null) {
+                        export_element.style['display']='none';
+                    }	
+                    var qrcode_element = document.getElementById("qrcode-"+credential_id);
+                    if (qrcode_element !== undefined && qrcode_element != null) {
+                        qrcode_element.style['display']='none';
+                    }	
+                } else if (id.includes("qrcode")) {
+                    var credential_id = id.substring(7, id.length);
+                    console.log(credential_id)
+                    var export_element = document.getElementById("exporttopdf-"+credential_id);
+                    if (export_element !== undefined && export_element != null) {
+                        export_element.style['display']='none';
+                    }
+                    var land_element = document.getElementById("landing-"+credential_id);
+                    if (land_element !== undefined && land_element != null) {
+                        land_element.style['display']='none';
+                    }	
+                }
+                var element = document.getElementById(id);
+                if (element !== undefined && element != null) {
+                    element.style['display']='block';
                 }
             }
 

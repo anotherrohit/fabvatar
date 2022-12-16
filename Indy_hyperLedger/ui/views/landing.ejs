@@ -1,46 +1,114 @@
-<div>Landing</div>
 <%for(let credential of credentials) {%>
-  <a onclick="showDiv('<%=credential.referent%>', 'credentialsClass')">
-      <div class="w3-bar w3-btn w3-white w3-border" style="width:100%;">
-          <svg class="w3-bar-item" width="50" height="50" data-jdenticon-value="<%=credential.cred_def_id%>"></svg>
-          <p class="w3-bar-item"><%=credential.schema_id.split(':')[2]%> <%=credential.schema_id.split(':')[3]%></p>
+  <div id="landing-<%=credential.referent%>" style="display: none;" class="hidden-page">
+    <style>
+    * {
+      box-sizing: border-box;
+    }
+  
+    .menu {
+      float: left;
+      width: 20%;
+      text-align: center;
+    }
+  
+    .menu a {
+      background-color: #e5e5e5;
+      padding: 8px;
+      margin-top: 7px;
+      display: block;
+      width: 100%;
+      color: black;
+    }
+  
+    .main {
+      float: left;
+      width: 60%;
+      padding: 0 20px;
+      text-align: left;
+    }
+  
+    .right {
+      background-color: #e5e5e5;
+      float: left;
+      width: 20%;
+      padding: 15px;
+      margin-top: 7px;
+      text-align: center;
+    }
+  
+    @media only screen and (max-width: 620px) {
+      /* For mobile phones: */
+      .menu, .main, .right {
+        width: 100%;
+      }
+    }
+    </style>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jdenticon@2.0.0"></script>
+    
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+  
+    <script>
+      // Function to HTML encode the text
+      // This creates a new hidden element,
+      // inserts the given text into it 
+      // and outputs it out as HTML
+      function htmlEncode(value) {
+        return $('<div/>').text(value)
+          .html();
+      }
+    
+      $(function () {
+    
+        // Specify an onclick function
+        // for the generate button
+        $('#generate').click(function () {
+    
+          // Generate the link that would be
+          // used to generate the QR Code
+          // with the given data 
+          let finalURL =
+  'https://chart.googleapis.com/chart?cht=qr&chl=' +
+            htmlEncode($('#content').val()) +
+            '&chs=160x160&chld=L|0'
+    
+          // Replace the src of the image with
+          // the QR code image
+          $('.qr-code').attr('src', finalURL);
+        });
+      });
+    </script>
+  
+    <div style="background-color:hwb(99 84% 8%);padding:15px;text-align:center;">
+        <!-- <img width="96" height="96" src="C:/Users/rnayak/Downloads/favtar/favtar/images/logo.jpeg"> -->
+        <svg class="w3-bar-item" width="96" height="96" data-jdenticon-value="<%=credential.cred_def_id%>"></svg>
+        <h1>Customer Service: <%=credential.attrs['tax_id']%></h1>
+    </div>
+  
+    <div style="overflow:auto">
+      <div class="menu">
+        <img width="96" height="96" src="<%=srcId%>">
+        <a href="#exporttopdf-<%=credential.referent%>" onclick="exportHtml('exporttopdf-<%=credential.referent%>')">Export to PDF</a>
+        <a href="#qrcode-<%=credential.referent%>" onclick="exportHtml('qrcode-<%=credential.referent%>')">Generate QR Code</a>
       </div>
-  </a>
-  <br>
-<%}%>
-<script type="text/javascript">
-	function exportHtml(id) {
-		// var randing_element = document.getElementById("randing-" + id);
-		// if (randing_element !== undefined && randing_element != null) {
-		// 	randing_element.style['display']='block';
-		// 		var html = randing_element.innerHTML;
-		// 		const htmlBlob = new Blob([html], { type: "text/html" });
-		// 		const blobUrl = URL.createObjectURL(htmlBlob);
-		// 		const anchorElement = document.createElement("a");
-		// 		anchorElement.href = blobUrl;
-		// 		anchorElement.download = "randing.html";
-		// 		anchorElement.click();
-		// }
-		var pdf_element = document.getElementById(id);
-		if (pdf_element !== undefined && pdf_element != null) {
-      pdf_element.style['display']='block';
-				// var html = pdf_element.innerHTML;
-				// const htmlBlob = new Blob([html], { type: "text/html" });
-				// const blobUrl = URL.createObjectURL(htmlBlob);
-				// const anchorElement = document.createElement("a");
-				// anchorElement.href = blobUrl;
-				// anchorElement.download = "exporttopdf.html";
-				// anchorElement.click();
-		}
-		// var qrcode_element = document.getElementById("qrcode-" + id);
-		// if (qrcode_element !== undefined && qrcode_element != null) {
-		// 		var html = qrcode_element.innerHTML;
-		// 		const htmlBlob = new Blob([html], { type: "text/html" });
-		// 		const blobUrl = URL.createObjectURL(htmlBlob);
-		// 		const anchorElement = document.createElement("a");
-		// 		anchorElement.href = blobUrl;
-		// 		anchorElement.download = "qrcode.html";
-		// 		anchorElement.click();
-		// }
-	}
-</script>
+  
+      <div class="main">
+        <!-- <img width="32" height="32" src="C:/Users/rnayak/Downloads/favtar/favtar/images/logo.jpeg"> -->
+        <svg class="w3-bar-item" width="32" height="32" data-jdenticon-value="<%=credential.cred_def_id%>"></svg>
+        <h5> <%=credential.attrs['name']%></h5>
+  
+        <%for(let attr of Object.keys(credential.attrs).sort()) {%>
+          <%if(attr != "name" && attr != "tax_id") {%>
+            <h2><%=attr%>: <%=credential.attrs[attr]%></h2>
+          <%}%>
+        <%}%>
+        <!-- <h2>ID: EnolascoTOP</h2> -->
+        </div>
+  
+      <div class="right">
+        <h2>About me</h2>
+        <p>I'm not with the utility</p>
+      </div>
+    </div>
+    <div style="background-color:#e5e5e5;text-align:center;padding:10px;margin-top:7px;">© copyright Fabvatar</div>
+  </div>
+  <%}%>
