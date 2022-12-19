@@ -1,5 +1,5 @@
 <%for(let credential of credentials) {%>
-  <div id="exporttopdf-<%=credential.referent%>" style="display: none;" class="hidden-page">
+  <div id="exporttopdf-<%=credential.referent%>" style="display: none; height: 87vh;overflow-y: auto;" class="hidden-page">
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head>
           <title></title>
@@ -68,23 +68,24 @@
                   <body style="font-family:Verdana;">
                   
                   <div style="background-color:hwb(99 84% 8%);padding:15px;text-align:center;">
-                      <img width="96" height="96" src="C:/Users/rnayak/Downloads/favtar/favtar/images/logo.jpeg">
-                      <h1>Customer Service: <%=credential.attrs['tax_id']%></h1>
+                    <svg class="w3-bar-item" width="96" height="96" data-jdenticon-value="<%=credential.cred_def_id%>"></svg>
+                    <h1>Customer Service: <%=credential.attrs['tax_id']%></h1>
                   </div>
-                  
                   <div style="overflow:auto">
                     <div class="menu">
-                      <img width="96" height="96" src="C:/Users/rnayak/Downloads/favtar/favtar/images/employee.jpeg">
+                      <img width="96" height="96" src="https://live.staticflickr.com/65535/52574419843_a52dcf984d_m.jpg">
                       
                     </div>
-                  
                     <div class="main">
-                      <img width="32" height="32" src="C:/Users/rnayak/Downloads/favtar/favtar/images/logo.jpeg">
-                      <h5> <%=credential.attrs['name']%></h5>
+                      <svg class="w3-bar-item" width="32" height="32" data-jdenticon-value="<%=credential.cred_def_id%>"></svg>
   
                       <%for(let attr of Object.keys(credential.attrs).sort()) {%>
-                        <%if(attr != "name" && attr != "tax_id") {%>
-                          <h2><%=attr%>: <%=credential.attrs[attr]%></h2>
+                        <%if(!attr.includes('photo')) {%>
+                          <%if(credential.attrs[attr] !== undefined && credential.attrs[attr] != null) {%>
+                            <h2><%=attr%>: <%=credential.attrs[attr]%></h2>
+                          <%} else { %>
+                            <h2><%=attr%></h2>
+                          <%}%>
                         <%}%>
                       <%}%>
                       </div>
@@ -99,7 +100,7 @@
                   
                   </body>
           </div>
-          <input type="button" value="Print Div Contents" id="btnPrint" />
+          <input type="button" value="Print Div Contents" id="btnPrint" style="margin-top: 0.5rem" class="w3-btn w3-white w3-border" />
           </form>
       </body>
       </html>

@@ -1,5 +1,5 @@
 <%for(let credential of credentials) {%>
-  <div id="landing-<%=credential.referent%>" style="display: none;" class="hidden-page">
+  <div id="landing-<%=credential.referent%>" style="display: none; height: 87vh;overflow-y: auto;" class="hidden-page">
     <style>
     * {
       box-sizing: border-box;
@@ -72,13 +72,13 @@
     <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
   
     <div style="background-color:hwb(99 84% 8%);padding:15px;text-align:center;">
-        <svg class="w3-bar-item" width="96" height="96" data-jdenticon-value="<%=credential.cred_def_id%>"></svg>
-        <h1>Customer Service: <%=credential.attrs['tax_id']%></h1>
+      <svg class="w3-bar-item" width="96" height="96" data-jdenticon-value="<%=credential.cred_def_id%>"></svg>
+      <h1>Customer Service: <%=credential.attrs['tax_id']%></h1>
     </div>
   
     <div style="overflow:auto">
       <div class="menu">
-        <img width="96" height="96" src="<%=srcId%>">
+        <img width="96" height="96" src="https://live.staticflickr.com/65535/52574419843_a52dcf984d_m.jpg">
         <a href="#exporttopdf-<%=credential.referent%>" onclick="exportHtml('exporttopdf-<%=credential.referent%>')">Export to PDF</a>
         <!-- <a href="#qrcode-<%=credential.referent%>" onclick="exportHtml('qrcode-<%=credential.referent%>')">Generate QR Code</a> -->
         <a onclick="generateQRCode('qrcode-<%=credential.referent%>')" style="cursor: pointer;">Generate QR Code</a>
@@ -86,11 +86,14 @@
   
       <div class="main">
         <svg class="w3-bar-item" width="32" height="32" data-jdenticon-value="<%=credential.cred_def_id%>"></svg>
-        <h5> <%=credential.attrs['name']%></h5>
   
         <%for(let attr of Object.keys(credential.attrs).sort()) {%>
-          <%if(attr != "name" && attr != "tax_id") {%>
-            <h2><%=attr%>: <%=credential.attrs[attr]%></h2>
+          <%if(!attr.includes('photo')) {%>
+            <%if(credential.attrs[attr] !== undefined && credential.attrs[attr] != null) {%>
+              <h2><%=attr%>: <%=credential.attrs[attr]%></h2>
+            <%} else { %>
+              <h2><%=attr%></h2>
+            <%}%>
           <%}%>
         <%}%>
         <!-- <h2>ID: EnolascoTOP</h2> -->

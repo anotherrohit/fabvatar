@@ -112,6 +112,7 @@ async function issueGovernmentIdCredential() {
     let govIdSchemaId = `${stewardDid}:2:${schemaName}:${schemaVersion}`;
     try {
         govIdSchema = await indy.issuer.getSchema(govIdSchemaId);
+        console.log("try govIdSchema = ", govIdSchema)
     } catch(e) {
         [govIdSchemaId, govIdSchema] = await sdk.issuerCreateSchema(stewardDid, schemaName, schemaVersion, [
             'name',
@@ -121,6 +122,7 @@ async function issueGovernmentIdCredential() {
 
         await indy.issuer.sendSchema(await indy.pool.get(), stewardWallet, stewardDid, govIdSchema);
         govIdSchema = await indy.issuer.getSchema(govIdSchemaId);
+        console.log("catch govIdSchema = ", govIdSchema)
     }
 
     let govIdCredDef;

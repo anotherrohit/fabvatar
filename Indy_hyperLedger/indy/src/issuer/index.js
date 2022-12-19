@@ -14,6 +14,7 @@ exports.getSchemas = async function () {
     let schemas = [];
     for (let schemaId of metadata.schemas) {
         let schema = await indy.issuer.getSchema(schemaId);
+        console.log("issue getSchemas getSchema = ", schema)
         schemas.push(schema);
     }
     return schemas;
@@ -21,6 +22,7 @@ exports.getSchemas = async function () {
 
 exports.createCredDef = async function (schemaId, tag) {
     let schema = await exports.getSchema(schemaId);
+    console.log("issue createCredDef getSchema = ", schema)
     let [credDefId, credDefJson] = await sdk.issuerCreateAndStoreCredentialDef(await indy.wallet.get(), await indy.did.getEndpointDid(), schema, tag, 'CL', '{"support_revocation": false}');
     let credDefRequest = await sdk.buildCredDefRequest(await indy.did.getEndpointDid(), credDefJson);
     await sdk.signAndSubmitRequest(await indy.pool.get(), await indy.wallet.get(), await indy.did.getEndpointDid(), credDefRequest);

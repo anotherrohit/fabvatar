@@ -35,6 +35,14 @@ router.get('/', auth.isLoggedIn, async function (req, res) {
 
     let credentials = await indy.credentials.getAll();
     let relationships = await indy.pairwise.getAll();
+    console.log("credentials: = ", credentials);
+    console.log("relationships: = ", relationships);
+    console.log("proofRequests: = ", proofRequests);
+    console.log("messages: = ", messages);
+    console.log("schemas: = ", await indy.issuer.getSchemas());
+    console.log("endpointDid: = ", await indy.did.getEndpointDidAttribute('credential_definitions'));
+    console.log("process.env: = ", process.env);
+    console.log("THEME: = ", THEME);
 
     res.render('index', {
         messages: messages,

@@ -95,6 +95,7 @@ exports.proverGetEntitiesFromLedger = async function(identifiers) {
     for(let referent of Object.keys(identifiers)) {
         let item = identifiers[referent];
         let receivedSchema = await indy.issuer.getSchema(item['schema_id']);
+        console.log("proverGetEntitiesFromLedger receivedSchema = ", receivedSchema)
         schemas[receivedSchema.id] = receivedSchema;
 
         let [receivedCredDefId, receivedCredDef] = await indy.issuer.getCredDef(await indy.pool.get(), await indy.did.getEndpointDid(), item['cred_def_id']);
@@ -117,6 +118,7 @@ exports.verifierGetEntitiesFromLedger = async function(identifiers) {
     for(let referent of Object.keys(identifiers)) {
         let item = identifiers[referent];
         let receivedSchema = await indy.issuer.getSchema(item['schema_id']);
+        console.log("verifierGetEntitiesFromLedger receivedSchema = ", receivedSchema)
         schemas[receivedSchema.id] = receivedSchema;
 
         let [receivedCredDefId, receivedCredDef] = await indy.issuer.getCredDef(await indy.pool.get(), await indy.did.getEndpointDid(), item['cred_def_id']);
