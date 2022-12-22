@@ -39,55 +39,41 @@ exports.sendRequest = async function (theirDid, encryptedMessage) {
 };
 
 exports.acceptRequest = async function(theirDid, encryptedMessage) {
-    let myDid = await indy.pairwise.getMyDid(theirDid);
-    let credentialRequest = await indy.crypto.authDecrypt(myDid, encryptedMessage,);
-    let [, credDef] = await indy.issuer.getCredDef(await indy.pool.get(), await indy.did.getEndpointDid(), credentialRequest.cred_def_id);
-
-    let credentialOffer;
-    let pendingCredOfferId;
-    let pendingCredOffers = indy.store.pendingCredentialOffers.getAll();
-    for(let pendingCredOffer of pendingCredOffers) {
-        if(pendingCredOffer.offer.cred_def_id === credDef.id) {
-            pendingCredOfferId = pendingCredOffer.id;
-            credentialOffer = pendingCredOffer.offer;
+    try {
+        let myDid = await indy.pairwise.getMyDid(theirDid);
+        let credentialRequest = await indy.crypto.authDecrypt(myDid, encryptedMessage,);
+        let [, credDef] = await indy.issuer.getCredDef(await indy.pool.get(), await indy.did.getEndpointDid(), credentialRequest.cred_def_id);
+    
+        let credentialOffer;
+        let pendingCredOfferId;
+        let pendingCredOffers = indy.store.pendingCredentialOffers.getAll();
+        for(let pendingCredOffer of pendingCredOffers) {
+            if(pendingCredOffer.offer.cred_def_id === credDef.id) {
+                pendingCredOfferId = pendingCredOffer.id;
+                credentialOffer = pendingCredOffer.offer;
+            }
         }
-    }
-    let schema = await indy.issuer.getSchema(credentialOffer.schema_id);
-    console.log("acceptRequest schema = ", schema);
-    let credentialValues = {};
-    for(let attr of schema.attrNames) {
-        let value;
-        switch(attr) {
-            case "name":
-                value = await indy.pairwise.getAttr(theirDid, 'name') || "Alice";
-                break;
-            case "degree":
-                value = "Bachelor of Science, Marketing";
-                break;
-            case "status":
-                value = "graduated";
-                break;
-            case "ssn":
-                value = "123-45-6789";
-                break;
-            case "year":
-                value = "2015";
-                break;
-            case "average":
-                value = "5";
-                break;
-            default:
-                value = "";
+        let schema = await indy.issuer.getSchema(credentialOffer.schema_id);
+        console.log("acceptRequest schema = ", schema);
+        let credentialValues = {};
+        for(let attr of schema.attrNames) {
+            if (attr != "") {
+                let split_str = attr.split(":");
+                let key = split_str[0];
+                let value = split_str[1] || '';
+                credentialValues[key] = {raw: value, encoded: exports.encode(value)};
+            }
         }
-        credentialValues[attr] = {raw: value, encoded: exports.encode(value)};
+        console.log(credentialValues);
+    
+        let [credential] = await sdk.issuerCreateCredential(await indy.wallet.get(), credentialOffer, credentialRequest, credentialValues);
+        let message = await indy.crypto.buildAuthcryptedMessage(myDid, theirDid, MESSAGE_TYPES.CREDENTIAL, credential);
+        let theirEndpointDid = await indy.did.getTheirEndpointDid(theirDid);
+        await indy.crypto.sendAnonCryptedMessage(theirEndpointDid, message);
+        indy.store.pendingCredentialOffers.delete(pendingCredOfferId);
+    } catch (error) {
+        console.error(error);
     }
-    console.log(credentialValues);
-
-    let [credential] = await sdk.issuerCreateCredential(await indy.wallet.get(), credentialOffer, credentialRequest, credentialValues);
-    let message = await indy.crypto.buildAuthcryptedMessage(myDid, theirDid, MESSAGE_TYPES.CREDENTIAL, credential);
-    let theirEndpointDid = await indy.did.getTheirEndpointDid(theirDid);
-    await indy.crypto.sendAnonCryptedMessage(theirEndpointDid, message);
-    indy.store.pendingCredentialOffers.delete(pendingCredOfferId);
 };
 
 exports.acceptCredential = async function(theirDid, encryptedMessage) {
