@@ -56,13 +56,39 @@ exports.acceptRequest = async function(theirDid, encryptedMessage) {
         let schema = await indy.issuer.getSchema(credentialOffer.schema_id);
         console.log("acceptRequest schema = ", schema);
         let credentialValues = {};
+        // for(let attr of schema.attrNames) {
+        //     if (attr != "") {
+        //         let split_str = attr.split(":");
+        //         let key = split_str[0];
+        //         let value = split_str[1] || '';
+        //         credentialValues[key] = {raw: value, encoded: exports.encode(value)};
+        //     }
+        // }
         for(let attr of schema.attrNames) {
-            if (attr != "") {
-                let split_str = attr.split(":");
-                let key = split_str[0];
-                let value = split_str[1] || '';
-                credentialValues[key] = {raw: value, encoded: exports.encode(value)};
+            let value;
+            switch(attr) {
+                case "name":
+                    value = await indy.pairwise.getAttr(theirDid, 'name') || "Alice";
+                    break;
+                case "degree":
+                    value = " ";
+                    break;
+                case "status":
+                    value = " ";
+                    break;
+                case "ssn":
+                    value = " ";
+                    break;
+                case "year":
+                    value = " ";
+                    break;
+                case "average":
+                    value = " ";
+                    break;
+                default:
+                    value = " ";
             }
+            credentialValues[attr] = {raw: value, encoded: exports.encode(value)};
         }
         console.log(credentialValues);
     
